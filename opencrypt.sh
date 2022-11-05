@@ -41,8 +41,8 @@ delete_if_output_exists()
     if [ -f "$outputfile" ];
     then
         echo "'$outputfile' exists."
-        printf "${WHITE}Deleting file '${filetodel}'${NC}\n"
         stat "$outputfile" | grep -i c
+        printf "${WHITE}Delete file '${filetodel}'${NC} ?\n"
         rm -i "$filetodel"
     else
         printf "${LRED}Ouch, file '${outputfile}' not created ?${NC}\n"
@@ -51,16 +51,21 @@ delete_if_output_exists()
 
  
 
-if [[ "$extension" == des3 ]]
+if [[ "$extension" == des3 || "$extension" == des3i ]]
 then
+    iter=""
+    if [[ "$extension" == des3i ]]
+    then
+        iter="-iter 1000"
+    fi
     original_name="$name_no_ext"
     printf "${YELL}Start decrypt... ${NC}\n"
-    openssl des3 -d -in "$1" -out "$original_name"
+    openssl des3 -d -in "$1" -out "$original_name" $iter
     delete_if_output_exists "$original_name" "$1"
 else
-    des3file="$1.des3"
+    des3file="$1.des3i" #2022-11-05 12:13:16 - Use of iter
     printf "${YELL}Start encrypt... ${NC}\n"
-    openssl des3 -in "$1" -out "$des3file"
+    openssl des3 -in "$1" -out "$des3file" -iter 1000
     delete_if_output_exists "$des3file" "$1"
 fi
 
